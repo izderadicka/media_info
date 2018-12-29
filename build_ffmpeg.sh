@@ -1,5 +1,6 @@
 wget https://www.ffmpeg.org/releases/ffmpeg-4.1.tar.xz
 tar xvf ffmpeg-4.1.tar.xz 
+rm ffmpeg-4.1.tar.xz
 cd ffmpeg-4.1/
 ./configure \
  --disable-programs \
@@ -24,6 +25,5 @@ cd ffmpeg-4.1/
   --enable-pic
 
 make
-
 
 
