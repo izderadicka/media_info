@@ -4,6 +4,7 @@ use std::env;
 use std::process::exit;
 use media_info::MediaFile;
 
+
 macro_rules! print_meta {
     ($mf: ident $($name:ident)+) => {
         $(
@@ -12,6 +13,18 @@ macro_rules! print_meta {
         }
         )+
     };
+}
+
+fn pretty_time(mut time: u64) -> String {
+    const HOUR:u64 = 3_600_000;
+    const MINUTE:u64 = 60_000;
+    let hours = time / HOUR;
+    time = time - hours*HOUR;
+    let mins =  time/MINUTE;
+    time = time -mins * MINUTE;
+    let secs = time as f64 / 1_000.0;
+
+    return format!("{:02}:{:02}:{:02.3}", hours, mins, secs);
 }
 
 fn main() {
@@ -25,10 +38,16 @@ fn main() {
     let fname = &args[1];
 
     let mf = MediaFile::open(fname).expect(&format!("Cannot open file {}", fname));
-    println!("File {} has duration {} ms and bitrate {} kbps", fname, mf.duration(), mf.bitrate());
+    println!("file: {}", fname);
+    println!("duration: {}", pretty_time(mf.duration()));
+    println!("bitrate: {} kbps", mf.bitrate());
     print_meta!(mf title artist album composer genre);
+    for chap in mf.chapters() {
+        println!("Chapter {} - {} ({} - {})", chap.num, chap.title, pretty_time(chap.start as u64), 
+        pretty_time(chap.end as u64));
+    }
    
-   println!("All meta {:?}", mf.get_all_meta());
+   //println!("All meta {:?}", mf.all_meta());
 
 
 

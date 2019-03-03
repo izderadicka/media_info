@@ -111,6 +111,14 @@ pub fn version() -> u32 {
     unsafe { ffi::avformat_version() }
 }
 
+#[derive(Debug, Clone)]
+pub struct Chapter {
+    pub title: String,
+    pub num: i32,
+    pub start: u64,
+    pub end: u64
+}
+
 pub struct MediaFile {
     ctx: *mut ffi::AVFormatContext,
     meta: Dictionary,
@@ -120,7 +128,7 @@ macro_rules! meta_methods {
     ($self:ident $( $name:ident )+) => {
         $(
         pub fn $name(&$self) -> Option<String> {
-        $self.get_meta(stringify!($name))
+        $self.meta(stringify!($name))
         }
         )+
     };
@@ -187,15 +195,39 @@ impl MediaFile {
     }
     meta_methods!(self title album artist composer genre track  );
 
-    pub fn get_meta<S: AsRef<str>>(&self, key: S) -> Option<String> {
+    pub fn meta<S: AsRef<str>>(&self, key: S) -> Option<String> {
         self.meta
             .get(&key)
             //.or_else(|| self.meta.get(key.as_ref().to_uppercase()))
     }
 
-    pub fn get_all_meta(&self) -> HashMap<String,String> {
+    pub fn all_meta(&self) -> HashMap<String,String> {
         self.meta.get_all()
     }
+
+    pub fn chapters(&self) -> Vec<Chapter> {
+        let mut c = Vec::new();
+        fn norm_time(t: i64, time_base: ffi::AVRational) -> u64 {
+            assert!(t>=0);
+            t as u64 * 1000 * time_base.num as u64 / time_base.den as u64
+        }
+        unsafe {
+            let chaps = slice::from_raw_parts((*self.ctx).chapters, (*self.ctx).nb_chapters as usize);
+            for chap in chaps {
+                let chap = **chap;
+                let meta = Dictionary::new(chap.metadata);
+                let num = chap.id;
+                let title = meta.get("title").unwrap_or_else(|| format!("Chapter {}", num));
+                let start = norm_time(chap.start, chap.time_base);
+                let end = norm_time(chap.end, chap.time_base);
+                c.push(Chapter{num,title, start, end});
+            }
+        }
+
+        c
+    }
+
+    
 }
 
 impl Drop for MediaFile {
@@ -222,8 +254,8 @@ mod tests {
         assert_eq!("Stoparuv pruvodce po galaxii", mf.album().unwrap());
         assert_eq!("Vojtěch Dyk", mf.artist().unwrap());
         assert_eq!("Adam Douglas", mf.composer().unwrap());
-        assert!(mf.get_meta("usak").is_none());
-        let meta = mf.get_all_meta();
+        assert!(mf.meta("usak").is_none());
+        let meta = mf.all_meta();
         assert_eq!("00.uvod", meta.get("title").unwrap());
         unsafe {
             ffi::av_dump_format(mf.ctx, 0, ptr::null(), 0);
