@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate quick_error;
-use std::ffi::CString;
+use std::ffi::{CString, CStr};
+use std::os::raw::c_char;
 use std::ptr;
 
 
@@ -19,13 +20,58 @@ quick_error! {
         AllocationError {
             display("memory allocation error - maybe full memory")
         }
+        InvalidString(err: std::str::Utf8Error) {
+            display("UTF8 error: {}", err)
+            from()
+        }
 
     }
 }
 
-// struct AvDictionary {
-//     pub dictionary: *mut ffi::AVDictionary,
-// }
+fn string_from_ptr(ptr: *const c_char) -> Result<Option<String>> {
+    if ptr.is_null() {
+        Ok(None)
+    } else {
+        unsafe {
+            Ok(Some(CStr::from_ptr(ptr).to_str()?.to_owned()))
+        }
+    }
+}
+
+fn string_from_ptr_lossy(ptr: *const c_char) -> String {
+    if ptr.is_null() {
+        "".into()
+    } else {
+        unsafe {
+           CStr::from_ptr(ptr).to_string_lossy().into()
+        }
+    }
+}
+
+
+struct Dictionary {
+    pub dic: *mut ffi::AVDictionary,
+}
+
+impl Dictionary {
+    fn new(dic: *mut ffi::AVDictionary) -> Self {
+        Dictionary{dic}
+    }
+
+    fn get<S:AsRef<str>>(&self, key: S) -> Option<String> {
+        if self.dic.is_null() {
+            return None
+        }
+        let cs = CString::new(key.as_ref()).expect("zero byte in key");
+        unsafe {
+            let res = ffi::av_dict_get(self.dic, cs.as_ptr(), ptr::null(),0);
+            if res.is_null() {
+                return None
+            }
+            return Some(string_from_ptr_lossy((*res).value))
+        }
+    }
+}
 
 // impl Drop for AvDictionary {
 //     fn drop(&mut self) {
@@ -75,7 +121,18 @@ pub fn version() -> u32 {
 }
 
 pub struct MediaFile {
-    ctx: *mut ffi::AVFormatContext
+    ctx: *mut ffi::AVFormatContext,
+    meta: Dictionary
+}
+
+macro_rules! meta_methods {
+    ($self:ident $( $name:ident )+) => {
+        $(
+        pub fn $name(&$self) -> Option<String> {
+        $self.meta.get(stringify!($name))
+        }
+        )+
+    };
 }
 
 impl MediaFile {
@@ -86,14 +143,17 @@ impl MediaFile {
         let name = CString::new(fname.as_ref()).unwrap();
         let ret = ffi::avformat_open_input(&mut ctx, name.as_ptr(), ptr::null_mut(), ptr::null_mut());
         check_ret(ret)?;
-        if ctx as usize == 0 {
+        if ctx.is_null() {
             return Err(Error::AllocationError)
         }
         let ret = ffi::avformat_find_stream_info(ctx, ptr::null_mut());
         check_ret(ret)?;
 
         // --------------------------------------------------------
-        Ok(MediaFile {ctx})
+        Ok(MediaFile {
+            ctx,
+            meta: Dictionary::new ((*ctx).metadata)
+            })
         }
     }
 
@@ -122,8 +182,11 @@ impl MediaFile {
         }
 
     }
-
-
+    meta_methods!(self title album artist composer genre track  );
+    
+    pub fn get_meta<S:AsRef<str>>(&self, key:S) -> Option<String> {
+        self.meta.get(key)
+    }
 }
 
 impl Drop for MediaFile {
@@ -148,6 +211,11 @@ mod tests {
         println!("Duration {}, bitrate {}", dur, br);
         assert!(dur/ 1_000  == 283 );
         assert!(br == 192);
+        assert_eq!("00.uvod", mf.title().unwrap());
+        assert_eq!("Stoparuv pruvodce po galaxii", mf.album().unwrap());
+        assert_eq!("Vojtěch Dyk", mf.artist().unwrap());
+        assert_eq!("Adam Douglas", mf.composer().unwrap());
+        assert!(mf.get_meta("usak").is_none());
         unsafe {
         ffi::av_dump_format(mf.ctx, 0, ptr::null(), 0);
         }

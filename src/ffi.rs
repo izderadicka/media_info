@@ -175,8 +175,10 @@ pub struct AVClass {
     pub log_level_offset_offset: ::std::os::raw::c_int,
     pub parent_log_context_offset: ::std::os::raw::c_int,
     pub child_next: ::std::option::Option<
-        unsafe extern "C" fn(obj: *mut ::std::os::raw::c_void, prev: *mut ::std::os::raw::c_void)
-            -> *mut ::std::os::raw::c_void,
+        unsafe extern "C" fn(
+            obj: *mut ::std::os::raw::c_void,
+            prev: *mut ::std::os::raw::c_void,
+        ) -> *mut ::std::os::raw::c_void,
     >,
     pub child_class_next:
         ::std::option::Option<unsafe extern "C" fn(prev: *const AVClass) -> *const AVClass>,
@@ -659,8 +661,55 @@ fn bindgen_test_layout_AVBufferRef() {
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
+pub struct AVDictionaryEntry {
+    pub key: *mut ::std::os::raw::c_char,
+    pub value: *mut ::std::os::raw::c_char,
+}
+#[test]
+fn bindgen_test_layout_AVDictionaryEntry() {
+    assert_eq!(
+        ::std::mem::size_of::<AVDictionaryEntry>(),
+        16usize,
+        concat!("Size of: ", stringify!(AVDictionaryEntry))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<AVDictionaryEntry>(),
+        8usize,
+        concat!("Alignment of ", stringify!(AVDictionaryEntry))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<AVDictionaryEntry>())).key as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(AVDictionaryEntry),
+            "::",
+            stringify!(key)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<AVDictionaryEntry>())).value as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(AVDictionaryEntry),
+            "::",
+            stringify!(value)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
 pub struct AVDictionary {
     _unused: [u8; 0],
+}
+extern "C" {
+    pub fn av_dict_get(
+        m: *const AVDictionary,
+        key: *const ::std::os::raw::c_char,
+        prev: *const AVDictionaryEntry,
+        flags: ::std::os::raw::c_int,
+    ) -> *mut AVDictionaryEntry;
 }
 pub const AVFrameSideDataType_AV_FRAME_DATA_PANSCAN: AVFrameSideDataType = 0;
 pub const AVFrameSideDataType_AV_FRAME_DATA_A53_CC: AVFrameSideDataType = 1;
@@ -2414,8 +2463,10 @@ pub struct AVCodecContext {
         unsafe extern "C" fn(
             c: *mut AVCodecContext,
             func: ::std::option::Option<
-                unsafe extern "C" fn(c2: *mut AVCodecContext, arg: *mut ::std::os::raw::c_void)
-                    -> ::std::os::raw::c_int,
+                unsafe extern "C" fn(
+                    c2: *mut AVCodecContext,
+                    arg: *mut ::std::os::raw::c_void,
+                ) -> ::std::os::raw::c_int,
             >,
             arg2: *mut ::std::os::raw::c_void,
             ret: *mut ::std::os::raw::c_int,
@@ -4539,8 +4590,10 @@ pub struct AVCodec {
         unsafe extern "C" fn(arg1: *mut AVCodecContext) -> ::std::os::raw::c_int,
     >,
     pub update_thread_context: ::std::option::Option<
-        unsafe extern "C" fn(dst: *mut AVCodecContext, src: *const AVCodecContext)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            dst: *mut AVCodecContext,
+            src: *const AVCodecContext,
+        ) -> ::std::os::raw::c_int,
     >,
     pub defaults: *const AVCodecDefault,
     pub init_static_data: ::std::option::Option<unsafe extern "C" fn(codec: *mut AVCodec)>,
@@ -4575,16 +4628,22 @@ pub struct AVCodec {
         unsafe extern "C" fn(arg1: *mut AVCodecContext) -> ::std::os::raw::c_int,
     >,
     pub send_frame: ::std::option::Option<
-        unsafe extern "C" fn(avctx: *mut AVCodecContext, frame: *const AVFrame)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            avctx: *mut AVCodecContext,
+            frame: *const AVFrame,
+        ) -> ::std::os::raw::c_int,
     >,
     pub receive_packet: ::std::option::Option<
-        unsafe extern "C" fn(avctx: *mut AVCodecContext, avpkt: *mut AVPacket)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            avctx: *mut AVCodecContext,
+            avpkt: *mut AVPacket,
+        ) -> ::std::os::raw::c_int,
     >,
     pub receive_frame: ::std::option::Option<
-        unsafe extern "C" fn(avctx: *mut AVCodecContext, frame: *mut AVFrame)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            avctx: *mut AVCodecContext,
+            frame: *mut AVFrame,
+        ) -> ::std::os::raw::c_int,
     >,
     pub flush: ::std::option::Option<unsafe extern "C" fn(arg1: *mut AVCodecContext)>,
     pub caps_internal: ::std::os::raw::c_int,
@@ -4938,12 +4997,17 @@ pub struct AVHWAccel {
     pub pix_fmt: AVPixelFormat,
     pub capabilities: ::std::os::raw::c_int,
     pub alloc_frame: ::std::option::Option<
-        unsafe extern "C" fn(avctx: *mut AVCodecContext, frame: *mut AVFrame)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            avctx: *mut AVCodecContext,
+            frame: *mut AVFrame,
+        ) -> ::std::os::raw::c_int,
     >,
     pub start_frame: ::std::option::Option<
-        unsafe extern "C" fn(avctx: *mut AVCodecContext, buf: *const u8, buf_size: u32)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            avctx: *mut AVCodecContext,
+            buf: *const u8,
+            buf_size: u32,
+        ) -> ::std::os::raw::c_int,
     >,
     pub decode_params: ::std::option::Option<
         unsafe extern "C" fn(
@@ -4954,8 +5018,11 @@ pub struct AVHWAccel {
         ) -> ::std::os::raw::c_int,
     >,
     pub decode_slice: ::std::option::Option<
-        unsafe extern "C" fn(avctx: *mut AVCodecContext, buf: *const u8, buf_size: u32)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            avctx: *mut AVCodecContext,
+            buf: *const u8,
+            buf_size: u32,
+        ) -> ::std::os::raw::c_int,
     >,
     pub end_frame: ::std::option::Option<
         unsafe extern "C" fn(avctx: *mut AVCodecContext) -> ::std::os::raw::c_int,
@@ -4971,8 +5038,10 @@ pub struct AVHWAccel {
     pub priv_data_size: ::std::os::raw::c_int,
     pub caps_internal: ::std::os::raw::c_int,
     pub frame_params: ::std::option::Option<
-        unsafe extern "C" fn(avctx: *mut AVCodecContext, hw_frames_ctx: *mut AVBufferRef)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            avctx: *mut AVCodecContext,
+            hw_frames_ctx: *mut AVBufferRef,
+        ) -> ::std::os::raw::c_int,
     >,
 }
 #[test]
@@ -6451,8 +6520,10 @@ pub struct AVIOContext {
     >,
     pub error: ::std::os::raw::c_int,
     pub read_pause: ::std::option::Option<
-        unsafe extern "C" fn(opaque: *mut ::std::os::raw::c_void, pause: ::std::os::raw::c_int)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            opaque: *mut ::std::os::raw::c_void,
+            pause: ::std::os::raw::c_int,
+        ) -> ::std::os::raw::c_int,
     >,
     pub read_seek: ::std::option::Option<
         unsafe extern "C" fn(
@@ -6973,8 +7044,10 @@ pub struct AVOutputFormat {
         unsafe extern "C" fn(arg1: *mut AVFormatContext) -> ::std::os::raw::c_int,
     >,
     pub write_packet: ::std::option::Option<
-        unsafe extern "C" fn(arg1: *mut AVFormatContext, pkt: *mut AVPacket)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            arg1: *mut AVFormatContext,
+            pkt: *mut AVPacket,
+        ) -> ::std::os::raw::c_int,
     >,
     pub write_trailer: ::std::option::Option<
         unsafe extern "C" fn(arg1: *mut AVFormatContext) -> ::std::os::raw::c_int,
@@ -6988,8 +7061,10 @@ pub struct AVOutputFormat {
         ) -> ::std::os::raw::c_int,
     >,
     pub query_codec: ::std::option::Option<
-        unsafe extern "C" fn(id: AVCodecID, std_compliance: ::std::os::raw::c_int)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            id: AVCodecID,
+            std_compliance: ::std::os::raw::c_int,
+        ) -> ::std::os::raw::c_int,
     >,
     pub get_output_timestamp: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7016,16 +7091,22 @@ pub struct AVOutputFormat {
         ) -> ::std::os::raw::c_int,
     >,
     pub get_device_list: ::std::option::Option<
-        unsafe extern "C" fn(s: *mut AVFormatContext, device_list: *mut AVDeviceInfoList)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            s: *mut AVFormatContext,
+            device_list: *mut AVDeviceInfoList,
+        ) -> ::std::os::raw::c_int,
     >,
     pub create_device_capabilities: ::std::option::Option<
-        unsafe extern "C" fn(s: *mut AVFormatContext, caps: *mut AVDeviceCapabilitiesQuery)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            s: *mut AVFormatContext,
+            caps: *mut AVDeviceCapabilitiesQuery,
+        ) -> ::std::os::raw::c_int,
     >,
     pub free_device_capabilities: ::std::option::Option<
-        unsafe extern "C" fn(s: *mut AVFormatContext, caps: *mut AVDeviceCapabilitiesQuery)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            s: *mut AVFormatContext,
+            caps: *mut AVDeviceCapabilitiesQuery,
+        ) -> ::std::os::raw::c_int,
     >,
     pub data_codec: AVCodecID,
     pub init: ::std::option::Option<
@@ -7033,8 +7114,10 @@ pub struct AVOutputFormat {
     >,
     pub deinit: ::std::option::Option<unsafe extern "C" fn(arg1: *mut AVFormatContext)>,
     pub check_bitstream: ::std::option::Option<
-        unsafe extern "C" fn(arg1: *mut AVFormatContext, pkt: *const AVPacket)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            arg1: *mut AVFormatContext,
+            pkt: *const AVPacket,
+        ) -> ::std::os::raw::c_int,
     >,
 }
 #[test]
@@ -7351,8 +7434,10 @@ pub struct AVInputFormat {
         unsafe extern "C" fn(arg1: *mut AVFormatContext) -> ::std::os::raw::c_int,
     >,
     pub read_packet: ::std::option::Option<
-        unsafe extern "C" fn(arg1: *mut AVFormatContext, pkt: *mut AVPacket)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            arg1: *mut AVFormatContext,
+            pkt: *mut AVPacket,
+        ) -> ::std::os::raw::c_int,
     >,
     pub read_close: ::std::option::Option<
         unsafe extern "C" fn(arg1: *mut AVFormatContext) -> ::std::os::raw::c_int,
@@ -7390,16 +7475,22 @@ pub struct AVInputFormat {
         ) -> ::std::os::raw::c_int,
     >,
     pub get_device_list: ::std::option::Option<
-        unsafe extern "C" fn(s: *mut AVFormatContext, device_list: *mut AVDeviceInfoList)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            s: *mut AVFormatContext,
+            device_list: *mut AVDeviceInfoList,
+        ) -> ::std::os::raw::c_int,
     >,
     pub create_device_capabilities: ::std::option::Option<
-        unsafe extern "C" fn(s: *mut AVFormatContext, caps: *mut AVDeviceCapabilitiesQuery)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            s: *mut AVFormatContext,
+            caps: *mut AVDeviceCapabilitiesQuery,
+        ) -> ::std::os::raw::c_int,
     >,
     pub free_device_capabilities: ::std::option::Option<
-        unsafe extern "C" fn(s: *mut AVFormatContext, caps: *mut AVDeviceCapabilitiesQuery)
-            -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(
+            s: *mut AVFormatContext,
+            caps: *mut AVDeviceCapabilitiesQuery,
+        ) -> ::std::os::raw::c_int,
     >,
 }
 #[test]

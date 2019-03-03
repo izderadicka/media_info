@@ -2,6 +2,10 @@
 bindgen \
 --no-doc-comments \
 --whitelist-type AVFormatContext \
+--whitelist-type AVDictionary \
+--whitelist-type AVChapter \
+--whitelist-type AVRational \
+--whitelist-function av_dict_get \
 --whitelist-function av_log_set_level \
 --whitelist-function av_register_all \
 --whitelist-function avformat_version \
