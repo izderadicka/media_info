@@ -1,3 +1,4 @@
+set -e
 wget https://www.ffmpeg.org/releases/ffmpeg-4.1.tar.xz
 tar xvf ffmpeg-4.1.tar.xz 
 rm ffmpeg-4.1.tar.xz

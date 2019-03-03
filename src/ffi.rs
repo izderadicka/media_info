@@ -82,7 +82,9 @@ where
         }
     }
 }
+pub const AV_TIME_BASE: u32 = 1000000;
 pub const AV_LOG_QUIET: i32 = -8;
+pub const AV_DICT_IGNORE_SUFFIX: u32 = 2;
 pub const AVMediaType_AVMEDIA_TYPE_UNKNOWN: AVMediaType = -1;
 pub const AVMediaType_AVMEDIA_TYPE_VIDEO: AVMediaType = 0;
 pub const AVMediaType_AVMEDIA_TYPE_AUDIO: AVMediaType = 1;
