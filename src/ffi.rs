@@ -713,6 +713,9 @@ extern "C" {
         flags: ::std::os::raw::c_int,
     ) -> *mut AVDictionaryEntry;
 }
+extern "C" {
+    pub fn av_dict_count(m: *const AVDictionary) -> ::std::os::raw::c_int;
+}
 pub const AVFrameSideDataType_AV_FRAME_DATA_PANSCAN: AVFrameSideDataType = 0;
 pub const AVFrameSideDataType_AV_FRAME_DATA_A53_CC: AVFrameSideDataType = 1;
 pub const AVFrameSideDataType_AV_FRAME_DATA_STEREO3D: AVFrameSideDataType = 2;

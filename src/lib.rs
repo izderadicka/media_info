@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::ptr;
+use std::slice;
 
 #[allow(dead_code)]
 #[allow(non_upper_case_globals)]
@@ -141,10 +142,25 @@ impl MediaFile {
             let ret = ffi::avformat_find_stream_info(ctx, ptr::null_mut());
             check_ret(ret)?;
 
+            let mut m = (*ctx).metadata;
+
+            if ffi::av_dict_count(m) == 0 && (*ctx).nb_streams > 0{
+                //OK we do not have meta in main header, let's look at streams
+
+                let streams = slice::from_raw_parts((*ctx).streams, (*ctx).nb_streams as usize);
+
+                for s in streams {
+                    let codec_type = (*(**s).codecpar).codec_type;
+                    if codec_type == ffi::AVMediaType_AVMEDIA_TYPE_AUDIO {
+                        m = (**s).metadata
+                    }
+                }
+            }
+
             // --------------------------------------------------------
             Ok(MediaFile {
                 ctx,
-                meta: Dictionary::new((*ctx).metadata),
+                meta: Dictionary::new(m),
             })
         }
     }

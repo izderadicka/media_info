@@ -28,7 +28,7 @@ fn main() {
     println!("File {} has duration {} ms and bitrate {} kbps", fname, mf.duration(), mf.bitrate());
     print_meta!(mf title artist album composer genre);
    
-   //println!("All meta {:?}", mf.get_all_meta());
+   println!("All meta {:?}", mf.get_all_meta());
 
 
 
