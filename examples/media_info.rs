@@ -1,9 +1,8 @@
 extern crate media_info;
 
+use media_info::MediaFile;
 use std::env;
 use std::process::exit;
-use media_info::MediaFile;
-
 
 macro_rules! print_meta {
     ($mf: ident $($name:ident)+) => {
@@ -16,12 +15,12 @@ macro_rules! print_meta {
 }
 
 fn pretty_time(mut time: u64) -> String {
-    const HOUR:u64 = 3_600_000;
-    const MINUTE:u64 = 60_000;
+    const HOUR: u64 = 3_600_000;
+    const MINUTE: u64 = 60_000;
     let hours = time / HOUR;
-    time = time - hours*HOUR;
-    let mins =  time/MINUTE;
-    time = time -mins * MINUTE;
+    time = time - hours * HOUR;
+    let mins = time / MINUTE;
+    time = time - mins * MINUTE;
     let secs = time as f64 / 1_000.0;
 
     return format!("{:02}:{:02}:{:02.3}", hours, mins, secs);
@@ -29,7 +28,7 @@ fn pretty_time(mut time: u64) -> String {
 
 fn main() {
     media_info::init();
-    let args: Vec<_> =  env::args().collect();
+    let args: Vec<_> = env::args().collect();
     if args.len() < 2 {
         eprintln!("Must provide file path as param");
         exit(1);
@@ -42,14 +41,17 @@ fn main() {
     println!("duration: {}", pretty_time(mf.duration()));
     println!("bitrate: {} kbps", mf.bitrate());
     print_meta!(mf title artist album composer genre);
-    for chap in mf.chapters() {
-        println!("Chapter {} - {} ({} - {})", chap.num, chap.title, pretty_time(chap.start as u64), 
-        pretty_time(chap.end as u64));
+    if let Some(chapters) = mf.chapters() {
+        for chap in chapters {
+            println!(
+                "Chapter {} - {} ({} - {})",
+                chap.num,
+                chap.title,
+                pretty_time(chap.start as u64),
+                pretty_time(chap.end as u64)
+            );
+        }
     }
-   
-   //println!("All meta {:?}", mf.all_meta());
 
-
-
-
+    //println!("All meta {:?}", mf.all_meta());
 }

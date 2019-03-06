@@ -205,14 +205,19 @@ impl MediaFile {
         self.meta.get_all()
     }
 
-    pub fn chapters(&self) -> Vec<Chapter> {
-        let mut c = Vec::new();
+    pub fn chapters(&self) -> Option<Vec<Chapter>> {
+        
         fn norm_time(t: i64, time_base: ffi::AVRational) -> u64 {
             assert!(t>=0);
             t as u64 * 1000 * time_base.num as u64 / time_base.den as u64
         }
         unsafe {
-            let chaps = slice::from_raw_parts((*self.ctx).chapters, (*self.ctx).nb_chapters as usize);
+            let num_chapters = (*self.ctx).nb_chapters as usize;
+            if num_chapters == 0 {
+                return None
+            }
+            let mut c = Vec::new();
+            let chaps = slice::from_raw_parts((*self.ctx).chapters, num_chapters);
             for chap in chaps {
                 let chap = **chap;
                 let meta = Dictionary::new(chap.metadata);
@@ -222,9 +227,10 @@ impl MediaFile {
                 let end = norm_time(chap.end, chap.time_base);
                 c.push(Chapter{num,title, start, end});
             }
+            Some(c)
         }
 
-        c
+        
     }
 
     
