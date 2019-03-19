@@ -2,7 +2,7 @@
 
 fn main() {
 
-    #[cfg(feature="static")]
+    #[cfg(any(feature="static", feature="partially-static"))]
     {
 
         use std::process;
@@ -21,16 +21,26 @@ fn main() {
         println!("cargo:rustc-link-lib=static=avformat");
         println!("cargo:rustc-link-lib=static=avutil");
         println!("cargo:rustc-link-lib=static=avcodec");
-        println!("cargo:rustc-link-lib=static=z");
-        println!("cargo:rustc-link-lib=static=bz2");
-        println!("cargo:rustc-link-search=native=/usr/lib");
-        println!("cargo:rustc-link-search=native=/lib");
         println!("cargo:rustc-link-search=native=ffmpeg-4.1/libavformat");
         println!("cargo:rustc-link-search=native=ffmpeg-4.1/libavutil");
         println!("cargo:rustc-link-search=native=ffmpeg-4.1/libavcodec");
     }
 
-    #[cfg(not(feature="static"))]
+    #[cfg(feature="static")]
+    {
+        println!("cargo:rustc-link-lib=static=z");
+        println!("cargo:rustc-link-lib=static=bz2");
+        println!("cargo:rustc-link-search=native=/usr/lib");
+        println!("cargo:rustc-link-search=native=/lib");
+    }
+
+    #[cfg(feature="partially-static")]
+    {
+        println!("cargo:rustc-link-lib=z");
+        println!("cargo:rustc-link-lib=bz2"); 
+    }
+
+    #[cfg(all(not(feature="static"), not(feature="partially-static")))]
     {
         println!("cargo:rustc-link-lib=avformat");
         println!("cargo:rustc-link-lib=avutil");
