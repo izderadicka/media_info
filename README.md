@@ -1,5 +1,7 @@
 # media_info
 
+**moved to audioserve repo**
+
 Simple Rust binding to libavformat (from ffmpeg progject) to extract duration and bitrate from media file.
 
 See [example code](examples/media_info.rs) for usage.
